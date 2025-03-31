@@ -1,0 +1,6 @@
+baseURL = 'AidanSavant.github.io'
+languageCode = 'en-us'
+title = 'Pedagogy'
+
+theme = "hugo-noir"
+
