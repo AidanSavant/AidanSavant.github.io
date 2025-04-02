@@ -2,5 +2,53 @@ baseURL = 'AidanSavant.github.io'
 languageCode = 'en-us'
 title = 'Pedagogy'
 
-theme = "hugo-noir"
+theme = "nightfall"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[menu]
+  [[menu.header]]
+    name = "posts"
+    weight = 0
+    url = "posts"
+  [[menu.header]]
+    name = "about"
+    weight = 1
+    url = "about"
+  [[menu.header]]
+    name = "experience"
+    weight = 2
+    url = "experience"
+  [[menu.header]]
+    name = "projects"
+    weight = 3
+    url = "projects"
+  
+[params]
+user = "head"
+hostname = "ache"
+published = false
+  [params.author]
+    name = "Pedagogy"  # Website and RSS feed author
+    email = "aidansavantgeneral@gmail.com"  # RSS feed email address
+
+  [params.styles]
+  color = "red"
+
+[[params.social]]
+key = 0
+name = "Github"
+url = "https://github.com/AidanSavant"
+target = "_blank"
+aria = "GitHub Profile"
+
+[[params.social]]
+key = 1
+name = "Email"
+url = "mailto:aidansavantschool@gmail.com?subject=Hi"
+aria = "aidansavantgeneral@gmail.com"
+
 
