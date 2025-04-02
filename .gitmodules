@@ -1,12 +1,4 @@
-[submodule "not-much"]
-	path = not-much
-	url = https://github.com/imgios/not-much.git
-[submodule "themes/terminal"]
-	path = themes/terminal
-	url = https://github.com/panr/hugo-theme-terminal.git
-[submodule "themes/color-your-world"]
-	path = themes/color-your-world
-	url = https://gitlab.com/rmaguiar/hugo-theme-color-your-world.git
 [submodule "hugo-theme-nightfall"]
-	path = hugo-theme-nightfall
+	path = themes/hugo-theme-nightfall
 	url = https://github.com/LordMathis/hugo-theme-nightfall
+
