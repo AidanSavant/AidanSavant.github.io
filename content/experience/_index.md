@@ -43,12 +43,3 @@ Ordered lists are in most experienced / fluent to least experienced / fluent.
 * Version control:
     1. Git
 
-
----
-# Education
-Neumont College of Computer Science
-GPA: 3.5
-
----
-# Career 
-
