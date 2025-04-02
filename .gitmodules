@@ -1,4 +1,5 @@
-[submodule "hugo-theme-nightfall"]
-	path = themes/hugo-theme-nightfall
-	url = https://github.com/LordMathis/hugo-theme-nightfall
+[submodule "themes/nightfall"]
+    path = themes/nightfall
+    url = https://github.com/username/hugo-theme-nightfall.git
+
 
