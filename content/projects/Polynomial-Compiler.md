@@ -1,6 +1,6 @@
 +++
 title = "Polynomial Compiler"
-date  = "2025-4-2"
+date  = "2025-04-02"
 tags  = ["CS theory", "Compilers", "Algorithms", "Low-level"]
 description = "Basic polynomial expression compiler (supports logical expressions)"
 +++
