@@ -15,7 +15,8 @@ The reason why I’ve created this blogging website is not only to showcase cool
 
 With that being said, not only will I showcase projects, but I will also provide walkthroughs and explanations for generally complex topics that are hard to explain and hard to understand.
 
-In the beginning, I plan on keeping my posts related to computer science theory and other branches it encapsulates, but I plan on covering numerous practical concepts not only related to computer science but other fields of science.
+In the beginning, I plan on keeping my posts related to computer science theory and other branches it encapsulates, 
+but later I plan on covering numerous practical concepts not only related to computer science but other fields of science.
 
 ---
 ## Areas of interest & experience
