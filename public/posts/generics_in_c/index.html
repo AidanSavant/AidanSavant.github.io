@@ -232,15 +232,15 @@ macro substitute our type then?</p>
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">        struct NAME##_node *head, *tail; \
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } NAME;                              \
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">DECL_LIST</span>(list, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span>)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">DECL_LIST</span>(List, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span>)
 </span></span></code></pre></div><p>let&rsquo;s see what the generated code looks like:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> list_node { 
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> data; 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> list_node <span style="color:#f92672">*</span>fd, <span style="color:#f92672">*</span>bk; 
-</span></span><span style="display:flex;"><span>} list_node;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> List_node <span style="color:#f92672">*</span>fd, <span style="color:#f92672">*</span>bk; 
+</span></span><span style="display:flex;"><span>} List_node;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> List { 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> list_node <span style="color:#f92672">*</span>head, <span style="color:#f92672">*</span>tail; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> List_node <span style="color:#f92672">*</span>head, <span style="color:#f92672">*</span>tail; 
 </span></span><span style="display:flex;"><span>} List;
 </span></span></code></pre></div><p>looks correct to me! Now let&rsquo;s move onto implementing some functions for the generic type.</p>
 <h1 id="generic-container-functions">Generic container functions</h1>

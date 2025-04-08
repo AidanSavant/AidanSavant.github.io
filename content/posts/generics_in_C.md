@@ -194,18 +194,18 @@ To fix this, we'll use indirection and have another parameter to label the type:
         struct NAME##_node *head, *tail; \
     } NAME;                              \
 
-DECL_LIST(list, const int)
+DECL_LIST(List, const int)
 ```
 
 let's see what the generated code looks like:
 ```c
 typedef struct list_node { 
     const int data; 
-    struct list_node *fd, *bk; 
-} list_node;
+    struct List_node *fd, *bk; 
+} List_node;
 
 typedef struct List { 
-    struct list_node *head, *tail; 
+    struct List_node *head, *tail; 
 } List;
 ```
 
