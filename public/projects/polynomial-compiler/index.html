@@ -97,7 +97,35 @@ Polynomial Compiler | Pedagogy
     </section>
     
     <div>
-        <p>TODO:</p>
+        <h1 id="introduction">Introduction</h1>
+<p>Simple compiler for polynomial expressions and logical expressions.</p>
+<ul>
+<li>(1 + 5) * 2 / 12</li>
+<li>((1 + 5) + 2) + ~(5 + 15)</li>
+<li>(1 &amp; 2 | 10 + 5 * 2) + ~(1 | 0 &amp; 5)</li>
+<li>&hellip; etc</li>
+</ul>
+<p>it also supports error diagnostics at the lexer and parser phases, so it can detect
+ill-formed expressions, e.g:</p>
+<ul>
+<li>(1 + 5</li>
+<li>++ 5</li>
+<li>1 +</li>
+<li>)(1</li>
+<li>&hellip; etc</li>
+</ul>
+<p>and invalid characters, e.g:</p>
+<ul>
+<li>1^</li>
+<li>\1</li>
+<li>a = 5 (soon to be supported :P)</li>
+</ul>
+<h1 id="table-of-contents">Table of contents</h1>
+<p>&hellip;</p>
+<h1 id="lexical-analysis">Lexical analysis</h1>
+<h1 id="syntax-analysis">Syntax analysis</h1>
+<h1 id="code-generation">Code generation</h1>
+<h1 id="todo">TODO</h1>
 <ul>
 <li>Add support for compiling files      | ❌</li>
 <li>Add Support for better phase errors  | ❌</li>
@@ -105,7 +133,6 @@ Polynomial Compiler | Pedagogy
 <li>Add Support for function definitions | ❌</li>
 <li>Add Support for LLVM bindings for optimization passes | ❌</li>
 </ul>
-
     </div>
 </div>
 

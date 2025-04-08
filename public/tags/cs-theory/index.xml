@@ -8,13 +8,14 @@
     <language>en-us</language>
     <managingEditor>aidansavantgeneral@gmail.com (Pedagogy)</managingEditor>
     <webMaster>aidansavantgeneral@gmail.com (Pedagogy)</webMaster>
+    <lastBuildDate>Wed, 02 Apr 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="//localhost:1313/tags/cs-theory/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Polynomial Compiler</title>
       <link>//localhost:1313/projects/polynomial-compiler/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
+      <pubDate>Wed, 02 Apr 2025 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
       <guid>//localhost:1313/projects/polynomial-compiler/</guid>
-      <description></description>
+      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;Simple compiler for polynomial expressions and logical expressions.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

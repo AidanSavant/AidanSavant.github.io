@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>
+Generics in C | Pedagogy
+</title>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+
+<meta name="generator" content="Hugo 0.123.7">
+
+
+<link rel="canonical" href="//localhost:1313/posts/generics_in_c/" >
+
+
+
+
+<link href="/css/style.min.7d63417984ed8fed032ecdfb8e571a9663f6cf20a48a8f6b4d5a9b32e178ffe7.css" rel="stylesheet">
+
+
+
+
+</head>
+
+<body>
+
+    <div class="flexWrapper">
+        <header class="headerWrapper">
+    <div class="header">
+        <div>
+            <a class="terminal" href="//localhost:1313/">
+                <span>head@ache ~ $</span>
+            </a>
+        </div>
+        <input class="side-menu" type="checkbox" id="side-menu">
+        <label class="hamb" for="side-menu"><span class="hamb-line"></span></label>
+        <nav class="headerLinks">
+            <ul>
+                
+                <li>
+                    <a href="//localhost:1313/about" title="" >
+                        ~/about</a>
+                </li>
+                
+                <li>
+                    <a href="//localhost:1313/experience" title="" >
+                        ~/experience</a>
+                </li>
+                
+                <li>
+                    <a href="//localhost:1313/projects" title="" >
+                        ~/projects</a>
+                </li>
+                
+                <li>
+                    <a href="//localhost:1313/posts" title="" >
+                        ~/posts</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="content">
+            <main class="main">
+                
+<div class="postWrapper">
+    <h1>Generics in C</h1>
+    
+    
+    <section class="postMetadata">
+        <dl>
+            
+                
+<dt>tags</dt>
+<dd><span></span>
+    <a href="/tags/c/">#C</a><span></span>
+    <a href="/tags/headache/">#Headache</a></dd>
+            
+            
+            
+            
+            
+                <dt>reading time</dt>
+                <dd>13 minutes</dd>
+            
+        </dl>
+    </section>
+    
+    <div>
+        <p>Generics functions and generic containers in C.</p>
+<h1 id="introduction">Introduction</h1>
+<p>There will be a point in your software development career where you&rsquo;ll
+need to write code that can be applied to a set of types rather than a singular type.</p>
+<p>This is called &ldquo;generic programming&rdquo;, more rigorously known as &ldquo;parametric polymorphism&rdquo;,
+and it&rsquo;s a common feature of most programming languages.</p>
+<p>Typically, writing generics in those other programming languages looks something like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">swap</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>(T x, T y) {
+</span></span><span style="display:flex;"><span>    T tmp <span style="color:#f92672">=</span> x;
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> y;
+</span></span><span style="display:flex;"><span>    y <span style="color:#f92672">=</span> tmp;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Basically, we&rsquo;re describing some &ldquo;abstract&rdquo; type that will be replaced with some &ldquo;concrete&rdquo;
+type upon calling <code>swap</code>. You can think of this as &ldquo;type substitution&rdquo; or &ldquo;type rewriting&rdquo;
+because that is commonly how it&rsquo;s implemented.</p>
+<p>This notion of &ldquo;type substitution&rdquo; is typically implemented as the
+compiler stamping out different versions of <code>swap</code> with the given &ldquo;concrete&rdquo; type.
+This process is called &ldquo;monomorphization&rdquo;.</p>
+<p>Let&rsquo;s look at monomorphization in action with our <code>swap</code> example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span>int a <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+</span></span><span style="display:flex;"><span>int b <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>swap(a, b)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>string c <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;foo&#34;</span>
+</span></span><span style="display:flex;"><span>string d <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;bar&#34;</span>
+</span></span><span style="display:flex;"><span>swap(c, d)
+</span></span></code></pre></div><p>so with our integer variables the compiler is actually calling an underlying
+function that looks like this whenever call our generic <code>swap</code> function:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>fn <span style="color:#a6e22e">swap_int</span>(<span style="color:#66d9ef">int</span> x, <span style="color:#66d9ef">int</span> y) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> tmp <span style="color:#f92672">=</span> x;
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> y;
+</span></span><span style="display:flex;"><span>    y <span style="color:#f92672">=</span> tmp;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>and likewise for our string variables.</p>
+<p>But how does the compiler know which underlying function to call?
+Well, the compiler is smart and can usually <em>infer</em> the concrete type,
+otherwise we have to explicitly annotate it which typically looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span>swap<span style="color:#f92672">&lt;</span>int<span style="color:#f92672">&gt;</span>(a, b)
+</span></span><span style="display:flex;"><span>swap<span style="color:#f92672">&lt;</span>string<span style="color:#f92672">&gt;</span>(c, d)
+</span></span></code></pre></div><h1 id="rewrite-that-in-c-for-me">Rewrite that in C for me&hellip;</h1>
+<p>That&rsquo;s cool and all but&hellip; what is the syntax for that in C?</p>
+<p>It doesn&rsquo;t exist 😃!!!</p>
+<h1 id="types-of-approaches">Types of approaches</h1>
+<p>Anyways&hellip; C offers two (technically three) mechanisms for us to indirectly implement generics.</p>
+<p>1.) Type erasure (<code>void pointers</code> &amp; <code>enum</code> tags)</p>
+<p>2.) Monomorphization (macros)</p>
+<p>(You can also use unions &amp; enum tags
+but I&rsquo;m just going to talk about first two)</p>
+<p>both of which have their own pros and cons, to keep it simple and align with the introduction
+we&rsquo;ll stick to monomorphization.</p>
+<h1 id="generic-functions">Generic functions</h1>
+<p>Let&rsquo;s rewrite our little pseudo-code example in C with macros:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define swap(T, x, y) \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    do {              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        T tmp = x;    \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        x = y;        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        y = tmp;      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } while(0)        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> a <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#66d9ef">int</span>, a, b);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>c <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;foo&#34;</span>, <span style="color:#f92672">*</span>d <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;bar&#34;</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>, c, d);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>You can test the code out and print each variable to ensure it properly swapped.</p>
+<p>C allows us to use macros to directly swap our code at compile-time with the given
+concrete type that is returned to us via <code>typeof</code> (which was standardized for C2x in 2023)</p>
+<h1 id="generic-containers">Generic containers</h1>
+<p>So now we know how to create generic functions, but what about generic data structures?
+It&rsquo;s not too much different, but it requires a little bit more care and thought due to
+some hard to see issues that we&rsquo;ll cover.</p>
+<p>Let&rsquo;s implement a generic container for a linked list that&rsquo;ll follow the form of:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ListNode</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>    T data;
+</span></span><span style="display:flex;"><span>    ListNode<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> fd, bk;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>    ListNode<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> head, tail;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>We&rsquo;ll need to create some sort of macro system for our <code>ListNode</code> and <code>List</code> type,
+we can do it like we did our original example, but this is a little different since
+we need to name these types.</p>
+<p>Alas the question arises, how do we name theses types? How should we
+differentiate between the multiple concrete types?</p>
+<p>Let&rsquo;s think about it, what is a unique way we can associate the concrete type
+to our type name? The type name!</p>
+<p>Let&rsquo;s look at an example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define DECL_LIST_NODE(T)             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    typedef struct ListNode_##T {     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        T data;                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        struct ListNode_##T *fd, *bk; \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } ListNode_##T;                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define DECL_LIST(T)                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    DECL_LIST_NODE(T)                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    typedef struct List_##T {         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        ListNode_##T *head, *tail;    \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } List_##T;                       \
+</span></span></span></code></pre></div><p>Looks good&hellip; right?</p>
+<h1 id="subtle-issue-1">Subtle issue #1</h1>
+<p>The 1st issue is how constricting our type declaration is,
+ergo we have no flexibility in what the name of the type is.</p>
+<p>Okay so how do we fix this?
+Interestingly enough, the solution to this issue is also the solution to the 2nd issue!</p>
+<h1 id="subtle-issue-2">Subtle issue #2</h1>
+<p>The 2nd issue is in how macros actually work. Macros preform lexical token substutition,
+so what happens if we want our <code>data</code> to be <code>volatile</code> or <code>unsigned</code>? How will the
+macro substitute our type then?</p>
+<p>Well, let&rsquo;s try it and see what happens when we do <code>DECL_LIST(const int)</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> ListNode_const <span style="color:#66d9ef">int</span> { 
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> data; 
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">struct</span> ListNode_const <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>fd, <span style="color:#f92672">*</span>bk; 
+</span></span><span style="display:flex;"><span>} ListNode_const <span style="color:#66d9ef">int</span>; 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> List_const <span style="color:#66d9ef">int</span> { 
+</span></span><span style="display:flex;"><span>  ListNode_const <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>head, <span style="color:#f92672">*</span>tail; 
+</span></span><span style="display:flex;"><span>} List_const <span style="color:#66d9ef">int</span>;
+</span></span></code></pre></div><p>Well&hellip; that doesn&rsquo;t look right&hellip; (this code also breaks with <code>T*</code> types)</p>
+<p>To fix this, we&rsquo;ll use indirection and have another parameter to label the type:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define DECL_LIST_NODE(NAME, T)          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    typedef struct NAME {                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        T data;                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        struct NAME *fd, *bk;            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } NAME;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define DECL_LIST(NAME, T)               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    DECL_LIST_NODE(NAME##_node, T)       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    typedef struct NAME {                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        struct NAME##_node *head, *tail; \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } NAME;                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">DECL_LIST</span>(list, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span>)
+</span></span></code></pre></div><p>let&rsquo;s see what the generated code looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> list_node { 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> data; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> list_node <span style="color:#f92672">*</span>fd, <span style="color:#f92672">*</span>bk; 
+</span></span><span style="display:flex;"><span>} list_node;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> List { 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">struct</span> list_node <span style="color:#f92672">*</span>head, <span style="color:#f92672">*</span>tail; 
+</span></span><span style="display:flex;"><span>} List;
+</span></span></code></pre></div><p>looks correct to me! Now let&rsquo;s move onto implementing some functions for the generic type.</p>
+<h1 id="generic-container-functions">Generic container functions</h1>
+<p>Here&rsquo;s a list of generic container functions we&rsquo;ll implement for our list:</p>
+<ol>
+<li>
+<p>Inserting at the tail</p>
+</li>
+<li>
+<p>Popping nodes off at the tail</p>
+</li>
+<li>
+<p>Searching for a node</p>
+</li>
+<li>
+<p>Destroying the list</p>
+</li>
+<li>
+<p>Print the list</p>
+</li>
+</ol>
+<p>Side note: functions for 3,4, and 5 will require more indirection
+for our macro than you might initially think.</p>
+<p>The generate all of these functions at compile-time, we&rsquo;ll use another macro called <code>DEFINE_LIST</code>
+which will generate the generic functions for the list.</p>
+<p>Side note: With each extension of the code I&rsquo;ll omit the previous extension
+just to keep the code simpler</p>
+<h1 id="generic-node-creation">Generic node creation</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define DEFINE_LIST(NAME, T)                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    NAME##_node *new_##NAME##_node(T data) {       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *node = malloc(sizeof(*node)); \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!node) {                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return NULL;                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        node-&gt;data = data;                         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        node-&gt;fd = node-&gt;bk = NULL;                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return node;                               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                              \
+</span></span></span></code></pre></div><h1 id="generic-tail-insertion">Generic Tail Insertion</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define DEFINE_LIST(NAME, T)                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    bool NAME##_push(NAME *list, T data) {            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list) {                                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return false;                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *node = new_##NAME##_node(data);  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list-&gt;head) {                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;head = list-&gt;tail = node;           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;len += 1;                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return true;                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;tail-&gt;fd = node;                        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        node-&gt;bk = list-&gt;tail;                        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;tail = node;                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;len += 1;                               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return true;                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                                 \
+</span></span></span></code></pre></div><p>Fairly straight forward from our previous examples,
+however for the 2nd function we&rsquo;re going to have to
+take some careful consideration for how we approach it.</p>
+<h2 id="generic-tail-deletion">Generic tail deletion</h2>
+<p>So what do we do when we delete a node? Well, we set the pointers accordingly and
+free the dataaa&hellip;. oh wait&hellip; what do we free if the concrete type is a complex type?</p>
+<p>Let&rsquo;s say we have a structure:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>malloc_buff;
+</span></span><span style="display:flex;"><span>} Foo;
+</span></span></code></pre></div><p>and we define our operations on the type <code>Foo</code>, it wouldn&rsquo;t make sense to call <code>free</code>
+on the object, so the user has to provide their own function to destruct the node.</p>
+<p>Implementation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define DEFINE_LIST(NAME, T, DTOR)            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    bool NAME##_pop(NAME *list) {             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list || !list-&gt;tail) {            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return false;                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list-&gt;tail;        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(list-&gt;head == list-&gt;tail) {        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;head = list-&gt;tail = NULL;   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        else {                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;tail = list-&gt;tail-&gt;bk;      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;tail-&gt;fd = NULL;            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        free(tmp);                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        DTOR(tmp-&gt;data);                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;len -= 1;                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return true;                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>malloc_buff;
+</span></span><span style="display:flex;"><span>} Foo;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">foo_dtor</span>(Foo fooer) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(<span style="color:#f92672">!</span>fooer.malloc_buff) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">free</span>(fooer<span style="color:#f92672">-&gt;</span>malloc_buff);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DEFINE_LIST</span>(List, Foo, foo_dtor)
+</span></span></code></pre></div><p>As you can see we treat <code>DTOR</code> as a function that is responsible
+for the destruction of <code>tmp-&gt;data</code>. (the data the node contains)</p>
+<h1 id="generic-node-search">Generic node search</h1>
+<p>Searching for a given node requires us to supply another function
+that will be responsible for equality checks of complex types.</p>
+<p>Implementation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define DEFINE_LIST(NAME, T, IS_EQU)              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    NAME##_node *NAME##_find(NAME list, T data) { \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list.head) {                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return NULL;                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list.head;             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        while(tmp) {                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            if(IS_EQU(tmp-&gt;data, data)) {         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                return tmp;                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            }                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            tmp = tmp-&gt;fd;                        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return NULL;                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">is_equ</span>(<span style="color:#66d9ef">int</span> l, <span style="color:#66d9ef">int</span> r) { <span style="color:#66d9ef">return</span> l <span style="color:#f92672">==</span> r; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DEFINE_LIST</span>(List, <span style="color:#66d9ef">int</span>, is_equ)
+</span></span></code></pre></div><p>We define a <code>is_equ</code> function so that we know how to compare the
+concrete types just in case it&rsquo;s more complex than just an <code>==</code>,
+such as a <code>const char *</code> concrete type where we&rsquo;d need to call
+<code>strcmp</code>.</p>
+<h1 id="generic-list-destruction">Generic list destruction</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define DEFINE_LIST(NAME, T, DTOR)         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    bool NAME##_destroy(NAME *list) {      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list || !list-&gt;head) {         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return false;                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list-&gt;head;     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        while(tmp) {                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            NAME##_node *tmp_fd = tmp-&gt;fd; \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            DTOR(tmp-&gt;data);               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            free(tmp);                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            tmp = tmp_fd;                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return true;                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                      \
+</span></span></span></code></pre></div><p>We reuse the same dtor to call on each existing
+node to ensure no memory leaks happen.</p>
+<h1 id="generic-list-printing">Generic list printing</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#define DEFINE_LIST(NAME, T, PRINTER) \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    void NAME##_print(NAME list) {    \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list.head) {              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return;                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list.head; \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        while(tmp) {                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            PRINTER(tmp-&gt;data);       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            tmp = tmp-&gt;fd;            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                 \
+</span></span></span></code></pre></div><p>We have to accept a printer so we know how to format the data.</p>
+<h1 id="full-implementation">Full implementation</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdbool.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define DECL_LIST_NODE(NAME, T)                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    typedef struct NAME {                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        T data;                                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        struct NAME *fd, *bk;                        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } NAME;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define DECL_LIST(NAME, T)                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    DECL_LIST_NODE(NAME##_node, T)                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    typedef struct NAME {                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        struct NAME##_node *head, *tail;             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        size_t len;                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    } NAME;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define DEFINE_LIST(NAME, T, IS_EQU, DTOR, PRINTER)  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    NAME##_node *new_##NAME##_node(T data) {         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *node = malloc(sizeof(*node));   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!node) {                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return NULL;                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        node-&gt;data = data;                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        node-&gt;fd = node-&gt;bk = NULL;                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return node;                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    bool NAME##_push(NAME *list, T data) {           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list) {                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return false;                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *node = new_##NAME##_node(data); \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list-&gt;head) {                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;head = list-&gt;tail = node;          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;len += 1;                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return true;                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;tail-&gt;fd = node;                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        node-&gt;bk = list-&gt;tail;                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;tail = node;                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;len += 1;                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return true;                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    bool NAME##_pop(NAME *list) {                    \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list || !list-&gt;tail) {                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return false;                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list-&gt;tail;               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(list-&gt;head == list-&gt;tail) {               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;head = list-&gt;tail = NULL;          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        else {                                       \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;tail = list-&gt;tail-&gt;bk;             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            list-&gt;tail-&gt;fd = NULL;                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">         }                                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        free(tmp);                                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        list-&gt;len -= 1;                              \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return true;                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    NAME##_node *NAME##_find(NAME list, T data) {    \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list.head) {                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return NULL;                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list.head;                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        while(tmp) {                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            if(IS_EQU(tmp-&gt;data, data)) {            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                return tmp;                          \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            }                                        \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            tmp = tmp-&gt;fd;                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return NULL;                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    void NAME##_print(NAME list) {                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list.head) {                             \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return;                                  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list.head;                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        while(tmp) {                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            PRINTER(tmp-&gt;data);                      \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            tmp = tmp-&gt;fd;                           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    bool NAME##_destroy(NAME *list) {                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        if(!list || !list-&gt;head) {                   \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            return false;                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        NAME##_node *tmp = list-&gt;head;               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        while(tmp) {                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            NAME##_node *tmp_fd = tmp-&gt;fd;           \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            DTOR(tmp-&gt;data);                         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            free(tmp);                               \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            tmp = tmp_fd;                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        }                                            \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                                                     \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">        return true;                                 \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    }                                                \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* == Example == */</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">int_dtor</span>(<span style="color:#66d9ef">int</span> _) { (<span style="color:#66d9ef">void</span>) _; }
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">str_dtor</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>_) { (<span style="color:#66d9ef">void</span>) _; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">int_equ</span>(<span style="color:#66d9ef">int</span> l, <span style="color:#66d9ef">int</span> r) { <span style="color:#66d9ef">return</span> l <span style="color:#f92672">==</span> r; }
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">str_equ</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>l, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>r) { <span style="color:#66d9ef">return</span> <span style="color:#f92672">!</span><span style="color:#a6e22e">strcmp</span>(l, r); }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">int_printer</span>(<span style="color:#66d9ef">int</span> data) { <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;%d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, data); }
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">str_printer</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>data) { <span style="color:#a6e22e">puts</span>(data); }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DECL_LIST</span>(List, <span style="color:#66d9ef">int</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DEFINE_LIST</span>(List, <span style="color:#66d9ef">int</span>, int_equ, int_dtor, int_printer)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DECL_LIST</span>(List2, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DEFINE_LIST</span>(List2, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>, str_equ, str_dtor, str_printer)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>) {
+</span></span><span style="display:flex;"><span>    List list <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; i <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">10</span>; <span style="color:#f92672">++</span>i) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">List_push</span>(<span style="color:#f92672">&amp;</span>list, i);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">List_pop</span>(<span style="color:#f92672">&amp;</span>list);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">List_pop</span>(<span style="color:#f92672">&amp;</span>list);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">List_print</span>(list);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">List_destroy</span>(<span style="color:#f92672">&amp;</span>list);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    List2 list2 <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>strs[] <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;abc&#34;</span>, <span style="color:#e6db74">&#34;def&#34;</span>, <span style="color:#e6db74">&#34;ghi&#34;</span>
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">3</span>; <span style="color:#f92672">++</span>i) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">List2_push</span>(<span style="color:#f92672">&amp;</span>list2, strs[i]);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">List2_print</span>(list2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">List2_destroy</span>(<span style="color:#f92672">&amp;</span>list2);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="final-notes">Final Notes</h1>
+<p>In the relationship between <code>DECL_LIST</code> and <code>DEFINE_LIST</code> there is a
+possibility where we can mismatch the name of the type and the underlying
+concrete type, there are some possible ideas I&rsquo;ve thought of (keeping track
+of initialized types in some internalized LUT) but have yet to come to
+frutition due to laziness and low IQ&hellip;</p>
+<h1 id="appendix">Appendix</h1>
+<h3 id="do--while0">do {} while(0)</h3>
+<p>You might&rsquo;ve noticed the <code>do {} while(0)</code> piece of code in the C macros and was probably
+puzzled by it, because it&rsquo;s seemingly redundant and useless?</p>
+<p>While that is a good thought, it&rsquo;s not entirely true. See, with multi-line macros sometimes
+they can get pasted incorrectly whenever we&rsquo;re nested the macro-call.</p>
+<p><a href="https://stackoverflow.com/questions/257418/do-while-0-what-is-it-good-for">Read more here</a></p>
+<h3 id="token-concatenation">Token Concatenation</h3>
+<p>You might&rsquo;ve seen the strange syntax of <code>##</code>, that is the token concatenation
+operator and it does exactly what the name describes.</p>
+<p>It&rsquo;ll take the token of the left-hand side and combine it with the right-hand
+side, this was particularly useful with concatenating the token we define for
+&ldquo;NAME&rdquo; instead of literally &ldquo;NAME&rdquo;.</p>
+<p><a href="https://gcc.gnu.org/onlinedocs/cpp/Concatenation.html">Read more here</a></p>
+<h3 id="type-erasure-generics">Type-erasure Generics</h3>
+<p>I had briefly mentioned type-erasure with the use of <code>void *</code>s and <code>enum</code>
+tags to represent different types.</p>
+<p>This is generally what libc functions utilize to achieve genericness,
+some notable functions from libc would be <code>qsort</code>, <code>bsearch</code>, <code>memcpy</code>, etc.</p>
+<p>Here&rsquo;s a copied example from chatGPT because I don&rsquo;t feel like writing
+all of that out:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>, y <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> f1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.1f</span>, f2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.2f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Swap two integers
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Before swap: x = %d, y = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, x, y);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span>x, <span style="color:#f92672">&amp;</span>y, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">int</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;After swap: x = %d, y = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, x, y);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Swap two floats
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Before swap: f1 = %.2f, f2 = %.2f</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, f1, f2);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span>f1, <span style="color:#f92672">&amp;</span>f2, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;After swap: f1 = %.2f, f2 = %.2f</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, f1, f2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Define an enum to represent the different types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">enum</span> {
+</span></span><span style="display:flex;"><span>    INT,
+</span></span><span style="display:flex;"><span>    FLOAT,
+</span></span><span style="display:flex;"><span>    DOUBLE,
+</span></span><span style="display:flex;"><span>    CHAR
+</span></span><span style="display:flex;"><span>} DataType;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// A generic print function using type erasure with void *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print</span>(<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>value, DataType type) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">switch</span> (type) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> INT:
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;%d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">*</span>(<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>)value);  <span style="color:#75715e">// Cast void * to int *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> FLOAT:
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;%f</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">*</span>(<span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>)value);  <span style="color:#75715e">// Cast void * to float *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> DOUBLE:
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;%lf</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">*</span>(<span style="color:#66d9ef">double</span> <span style="color:#f92672">*</span>)value);  <span style="color:#75715e">// Cast void * to double *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> CHAR:
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;%c</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">*</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>)value);  <span style="color:#75715e">// Cast void * to char *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Unknown type</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// A generic swap function using type erasure with void *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">swap</span>(<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>a, <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>b, <span style="color:#66d9ef">size_t</span> size) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>temp <span style="color:#f92672">=</span> <span style="color:#a6e22e">malloc</span>(size);  <span style="color:#75715e">// Allocate temporary space for swapping
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Swap the data
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">memcpy</span>(temp, a, size);       <span style="color:#75715e">// Copy data from a to temp
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">memcpy</span>(a, b, size);          <span style="color:#75715e">// Copy data from b to a
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">memcpy</span>(b, temp, size);       <span style="color:#75715e">// Copy data from temp to b
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">free</span>(temp);  <span style="color:#75715e">// Don&#39;t forget to free the allocated memory
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Variables of different types
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> x <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, y <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> f1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">3.14f</span>, f2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.71f</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> d1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.718</span>, d2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">3.14159</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">char</span> c1 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;A&#39;</span>, c2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;B&#39;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Using the generic print function
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>x, INT);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>f1, FLOAT);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>d1, DOUBLE);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#f92672">&amp;</span>c1, CHAR);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Using the generic swap function
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Before swap: x = %d, y = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, x, y);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span>x, <span style="color:#f92672">&amp;</span>y, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">int</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;After swap: x = %d, y = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, x, y);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Before swap: f1 = %.2f, f2 = %.2f</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, f1, f2);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span>f1, <span style="color:#f92672">&amp;</span>f2, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;After swap: f1 = %.2f, f2 = %.2f</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, f1, f2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Before swap: d1 = %.5f, d2 = %.5f</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, d1, d2);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span>d1, <span style="color:#f92672">&amp;</span>d2, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">double</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;After swap: d1 = %.5f, d2 = %.5f</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, d1, d2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Before swap: c1 = %c, c2 = %c</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, c1, c2);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">swap</span>(<span style="color:#f92672">&amp;</span>c1, <span style="color:#f92672">&amp;</span>c2, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">char</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;After swap: c1 = %c, c2 = %c</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, c1, c2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="revisions">Revisions</h1>
+<p>Honestly, I didn&rsquo;t revise this at all and there&rsquo;s probably grammatical errors and
+redundancy all over the place. If you notice any, please send me an email that is found
+on the homepage of the website.</p>
+    </div>
+</div>
+
+            </main>
+        </div>
+
+
+        <footer class="footer">
+    
+        <span>
+            © 2025 Pedagogy, Built with
+            <a href="https://gohugo.io" class="footerLink">Hugo</a> and
+            <a href="https://github.com/LordMathis/hugo-theme-nightfall" class="footerLink">Nightfall</a> theme
+        </span>
+    
+</footer>
+    </div>
+
+</body>
+
+</html>

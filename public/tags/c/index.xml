@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Test Tag on Pedagogy</title>
-    <link>//localhost:1313/tags/test-tag/</link>
-    <description>Recent content in Test Tag on Pedagogy</description>
+    <title>C on Pedagogy</title>
+    <link>//localhost:1313/tags/c/</link>
+    <description>Recent content in C on Pedagogy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <managingEditor>aidansavantgeneral@gmail.com (Pedagogy)</managingEditor>
     <webMaster>aidansavantgeneral@gmail.com (Pedagogy)</webMaster>
     <lastBuildDate>Wed, 05 Mar 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="//localhost:1313/tags/test-tag/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//localhost:1313/tags/c/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>test post</title>
-      <link>//localhost:1313/posts/test/</link>
+      <title>Generics in C</title>
+      <link>//localhost:1313/posts/generics_in_c/</link>
       <pubDate>Wed, 05 Mar 2025 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
-      <guid>//localhost:1313/posts/test/</guid>
-      <description>test text</description>
+      <guid>//localhost:1313/posts/generics_in_c/</guid>
+      <description>&lt;p&gt;Generics in C.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
