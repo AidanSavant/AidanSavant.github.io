@@ -165,7 +165,7 @@ concrete type that is returned to us via <code>typeof</code> (which was standard
 <h1 id="generic-containers">Generic containers</h1>
 <p>So now we know how to create generic functions, but what about generic data structures?
 It&rsquo;s not too much different, but it requires a little bit more care and thought due to
-some hard to see issues that we&rsquo;ll cover.</p>
+some subtle issues that we&rsquo;ll cover.</p>
 <p>Let&rsquo;s implement a generic container for a linked list that&rsquo;ll follow the form of:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ListNode</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> {
 </span></span><span style="display:flex;"><span>    T data;

@@ -106,7 +106,7 @@ concrete type that is returned to us via ``typeof`` (which was standardized for 
 # Generic containers
 So now we know how to create generic functions, but what about generic data structures?
 It's not too much different, but it requires a little bit more care and thought due to
-some hard to see issues that we'll cover.
+some subtle issues that we'll cover.
 
 Let's implement a generic container for a linked list that'll follow the form of:
 ```rust
