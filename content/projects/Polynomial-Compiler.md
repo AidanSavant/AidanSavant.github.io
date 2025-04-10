@@ -5,10 +5,12 @@ tags  = ["CS theory", "Compilers", "Algorithms", "Low-level"]
 description = "Basic polynomial expression compiler (supports logical expressions)"
 +++
 
+Compiler for expressions to x86-64 written in Java. WIP.
+<!--more-->
+
 # Introduction
 
 Simple compiler for polynomial expressions and logical expressions.
-<!--more-->
 * (1 + 5) * 2 / 12
 * ((1 + 5) + 2) + ~(5 + 15)
 * (1 & 2 | 10 + 5 * 2) + ~(1 | 0 & 5)
@@ -27,14 +29,14 @@ and invalid characters, e.g:
 * \1
 * a = 5 (soon to be supported :P)
 
-# Table of contents
+# Lexical analysis
 ...
 
-# Lexical analysis
-
 # Syntax analysis
+...
 
 # Code generation
+...
 
 # TODO
 * Add support for compiling files      | ❌
