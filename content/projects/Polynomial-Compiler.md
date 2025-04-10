@@ -5,8 +5,7 @@ tags  = ["CS theory", "Compilers", "Algorithms", "Low-level"]
 description = "Basic polynomial expression compiler (supports logical expressions)"
 +++
 
-Compiler for expressions to x86-64 written in Java. WIP.
-<!--more-->
+<!-- Compiler for expressions to x86-64 written in Java. WIP. -->
 
 # Introduction
 
