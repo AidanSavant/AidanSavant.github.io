@@ -30,7 +30,11 @@ and invalid characters, e.g:
 * a = 5 (soon to be supported :P)
 
 # Lexical analysis
-...
+The first stage of compilation is lexical analysis, which is the phase where you translate your source program
+and synthesize these units called "tokens".
+
+The generated tokens are then used in later phases of the frontend such as syntactical analysis and 
+semantical analysis.
 
 # Syntax analysis
 ...

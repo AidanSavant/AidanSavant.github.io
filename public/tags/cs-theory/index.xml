@@ -15,7 +15,7 @@
       <link>//localhost:1313/projects/polynomial-compiler/</link>
       <pubDate>Wed, 02 Apr 2025 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
       <guid>//localhost:1313/projects/polynomial-compiler/</guid>
-      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;Simple compiler for polynomial expressions and logical expressions.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Compiler for expressions to x86-64 written in Java. WIP.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

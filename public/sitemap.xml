@@ -42,8 +42,6 @@
   </url><url>
     <loc>//localhost:1313/experience/</loc>
   </url><url>
-    <loc>//localhost:1313/projects/test/</loc>
-  </url><url>
     <loc>//localhost:1313/categories/</loc>
   </url>
 </urlset>
