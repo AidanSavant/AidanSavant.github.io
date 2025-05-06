@@ -1,8 +1,8 @@
 +++
-title = "Polynomial Compiler"
+title = "Expression Compiler"
 date  = "2025-04-02"
 tags  = ["CS theory", "Compilers", "Algorithms", "Low-level"]
-description = "Basic polynomial expression compiler (supports logical expressions)"
+description = "Basic expression compiler (supports logical expressions)"
 +++
 
 Compiler for expressions to x86-64 written in Java. WIP.
