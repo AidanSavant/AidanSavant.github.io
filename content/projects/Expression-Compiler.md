@@ -14,7 +14,7 @@ Simple compiler for polynomial expressions and logical expressions.
 * (1 + 5) * 2 / 12
 * ((1 + 5) + 2) + ~(5 + 15)
 * (1 & 2 | 10 + 5 * 2) + ~(1 | 0 & 5)
-* ... etc
+* ..., etc
 
 it also supports error diagnostics at the lexer and parser phases, so it can detect
 ill-formed expressions, e.g:
@@ -29,23 +29,7 @@ and invalid characters, e.g:
 * \1
 * a = 5 (soon to be supported :P)
 
-# Lexical analysis
-The first stage of compilation is lexical analysis, which is the phase where you translate your source program
-and synthesize these units called "tokens".
+# Code Explanation & Analysis:
 
-The generated tokens are then used in later phases of the frontend such as syntactical analysis and 
-semantical analysis.
 
-# Syntax analysis
-...
-
-# Code generation
-...
-
-# TODO
-* Add support for compiling files      | ❌
-* Add Support for better phase errors  | ❌
-* Add Support for variable bindings    | ❌
-* Add Support for function definitions | ❌
-* Add Support for LLVM bindings for optimization passes | ❌
 
