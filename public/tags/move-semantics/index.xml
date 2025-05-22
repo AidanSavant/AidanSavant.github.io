@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Pedagogy</title>
-    <link>//localhost:1313/posts/</link>
-    <description>Recent content in Posts on Pedagogy</description>
+    <title>Move Semantics on Pedagogy</title>
+    <link>//localhost:1313/tags/move-semantics/</link>
+    <description>Recent content in Move Semantics on Pedagogy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <managingEditor>aidansavantgeneral@gmail.com (Pedagogy)</managingEditor>
     <webMaster>aidansavantgeneral@gmail.com (Pedagogy)</webMaster>
-    <lastBuildDate>Wed, 05 Mar 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="//localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Generics in C</title>
-      <link>//localhost:1313/posts/generics_in_c/</link>
-      <pubDate>Wed, 05 Mar 2025 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
-      <guid>//localhost:1313/posts/generics_in_c/</guid>
-      <description>&lt;p&gt;Generics functions and generic containers in C.&lt;/p&gt;</description>
-    </item>
+    <atom:link href="//localhost:1313/tags/move-semantics/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Move semantics in C&#43;&#43;</title>
       <link>//localhost:1313/posts/move_semantics/</link>

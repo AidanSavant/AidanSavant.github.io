@@ -14,10 +14,10 @@
     <loc>//localhost:1313/tags/cs-theory/</loc>
     <lastmod>2025-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/low-level/</loc>
+    <loc>//localhost:1313/projects/expression-compiler/</loc>
     <lastmod>2025-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/projects/polynomial-compiler/</loc>
+    <loc>//localhost:1313/tags/low-level/</loc>
     <lastmod>2025-04-02T00:00:00+00:00</lastmod>
   </url><url>
     <loc>//localhost:1313/projects/</loc>
@@ -42,6 +42,12 @@
   </url><url>
     <loc>//localhost:1313/experience/</loc>
   </url><url>
+    <loc>//localhost:1313/tags/c&#43;&#43;/</loc>
+  </url><url>
     <loc>//localhost:1313/categories/</loc>
+  </url><url>
+    <loc>//localhost:1313/tags/move-semantics/</loc>
+  </url><url>
+    <loc>//localhost:1313/posts/move_semantics/</loc>
   </url>
 </urlset>

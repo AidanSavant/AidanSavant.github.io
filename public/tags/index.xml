@@ -52,5 +52,19 @@
       <guid>//localhost:1313/tags/headache/</guid>
       <description></description>
     </item>
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>//localhost:1313/tags/c&#43;&#43;/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
+      <guid>//localhost:1313/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Move Semantics</title>
+      <link>//localhost:1313/tags/move-semantics/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
+      <guid>//localhost:1313/tags/move-semantics/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

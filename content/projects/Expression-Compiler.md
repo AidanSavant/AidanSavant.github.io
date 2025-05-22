@@ -31,5 +31,3 @@ and invalid characters, e.g:
 
 # Code Explanation & Analysis:
 
-
-
