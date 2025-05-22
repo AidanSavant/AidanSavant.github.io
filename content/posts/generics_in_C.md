@@ -8,6 +8,7 @@ Generics functions and generic containers in C.
 <!--more-->
 
 # Introduction
+
 There will be a point in your software development career where you'll 
 need to write code that can be applied to a set of types rather than a singular type.
 
