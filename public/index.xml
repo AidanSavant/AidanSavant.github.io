@@ -8,8 +8,15 @@
     <language>en-us</language>
     <managingEditor>aidansavantgeneral@gmail.com (Pedagogy)</managingEditor>
     <webMaster>aidansavantgeneral@gmail.com (Pedagogy)</webMaster>
-    <lastBuildDate>Wed, 02 Apr 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 22 May 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="//localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Move semantics in C&#43;&#43;</title>
+      <link>//localhost:1313/posts/move_semantics/</link>
+      <pubDate>Thu, 22 May 2025 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
+      <guid>//localhost:1313/posts/move_semantics/</guid>
+      <description>&lt;p&gt;Small introduction to move semantics in C++. WIP.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Expression Compiler</title>
       <link>//localhost:1313/projects/expression-compiler/</link>
@@ -30,13 +37,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
       <guid>//localhost:1313/about/</guid>
       <description>Pedogagy The method and practice of teaching, especially as an academic subject or theoretical concept.&#xA;Introduction Hello! I am Aidan, an 18-year-old freshman (2025) at Neumont College of Computer Science.&#xA;I am thoroughly interested in programming, CS theory, designing systems, low-level applications, operating systems, computer hardware, compilers, networking, data structures and algorithms, and other components that seamlessly build modern-day applications.&#xA;However, I am not just interested in computers but anything science.</description>
-    </item>
-    <item>
-      <title>Move semantics in C&#43;&#43;</title>
-      <link>//localhost:1313/posts/move_semantics/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>aidansavantgeneral@gmail.com (Pedagogy)</author>
-      <guid>//localhost:1313/posts/move_semantics/</guid>
-      <description>&lt;p&gt;Small introduction to move semantics in C++. WIP.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

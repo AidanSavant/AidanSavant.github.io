@@ -1,6 +1,6 @@
 +++
 title = "Move semantics in C++" 
-date  = "2025-05-022"
+date  = "2025-05-22"
 tags  = ["C++", "Move semantics"]
 +++
 
