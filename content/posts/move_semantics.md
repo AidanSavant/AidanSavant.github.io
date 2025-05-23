@@ -155,8 +155,8 @@ public:
 A a = A();
 A b = std::move(b); // std::move(A()) also works 
 ```
-So the code now calls ``std::move(b)`` and converts ``b`` into a ``A&&``. ``std::move`` is essentially sugar syntax for a 
-``static_cast``.
+So the code now calls ``std::move(b)`` and converts ``b`` into a ``A&&``. 
+(NOTE: ``std::move`` is essentially sugar syntax for a ``static_cast``)
 
 Another place we use the ``&&`` is for move assignments to reassign already existing objects without creating
 temporaries. An example with our previous class would be:
