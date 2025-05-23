@@ -4,7 +4,7 @@ date  = "2025-05-22"
 tags  = ["C++", "Move semantics"]
 +++
 
-Small introduction to move semantics in C++. WIP.
+Small introduction to move semantics in C++
 <!--more-->
 
 # Introduction
