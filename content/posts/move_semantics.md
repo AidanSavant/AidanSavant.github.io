@@ -8,10 +8,10 @@ Small introduction to move semantics in C++
 <!--more-->
 
 # Introduction
-C++ is a systems language designed for performance, and it does a pretty damn good 
-job of achieving this. However, there was a grey area before C++11 that was hard for 
-compiler developers to address **efficiently**. I'm referring to the construction of 
-temporary objects causing unnecessary copying of, possibly, large [objects](https://eel.is/c++draft/intro.object).
+C++ is a systems language with an affinity for performance, and it does a pretty damn good job of achieving this. 
+However, there was a grey area before C++11 that was hard for compiler developers to address **efficiently**. 
+I'm referring to the construction of temporary objects causing unnecessary copying of, possibly, 
+large [objects](https://eel.is/c++draft/intro.object).
 (NOTE: C++ objects, not OO objects. Completely different things) 
 
 C++ compilers later implemented a few ways to address this problem, namely through
