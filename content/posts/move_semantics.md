@@ -30,7 +30,7 @@ about said expression. In their simplest form, there are 2 **main** categories: 
 (and subsequent reference forms of such categories). -- Technically, there are more categories that
 are more or less broad, but most of which can be encapsulated by ``lvalues`` and ``rvalues``.
 
-C++14 introduced the ``rvalue reference`` (and ``xvalues``, we'll go over that later) value category as a way to implement 
+C++14 introduced the ``rvalue reference`` (and ``xvalues``, but we'll go over that later) value category as a way to implement 
 move semantics. Let's define what ``lvalues`` and ``rvalues`` are.
 
 ## Lvalues
@@ -59,8 +59,8 @@ f() = 15;
 ```
 
 ## Rvalues
-Generally, ``rvalues``` are expressions that **aren't** lvalues. Therefore, ``rvalues``` are simply value that have no ``identity`` 
-(``not addressible``` in memory and are ``temporary`` relative to the evaluation context). Subsequently, they are archaically
+Generally, ``rvalues`` are expressions that aren't lvalues. Therefore, ``rvalues``` are simply value that have no ``identity`` 
+(``not addressible` in memory and are ``temporary`` relative to the evaluation context). Subsequently, they are archaically
 referred to as what's found on the "right-hand side" of an assignment.
 
 Let's look at some examples:
@@ -86,5 +86,153 @@ int x = f(); // implicitly convert lvalue "f()" to it's rvalue return value
 ```
 
 ## Rvalue references
+With that out of the way, let's talk about rvalue references. Just like lvalue references, rvalue references reference 
+rvalues. Rvalue references are signified with a double ``&&``.
 
+Let's look at an example:
+```cpp
+void f(int&& x) {}
+
+f(5); // OK, binds to a temporary ("5" in this case)
+    
+int x = 5;
+f(x); // ERROR, tries to bind to a non-temporary ("x" in this case)
+```
+
+As you can see ``f`` can only accept temporary values because of the ``&&``. However, there's another way to accept a temporary
+value e.g:
+```cpp
+void f(const int& x) {}
+```
+this will also accept temporaries AND non-temporary values. The reason why this is okay is because C++ will extend the lifetime
+of the temporary to last for the duration of the function. It's considered "the most important const" by Andrei Alexandrescu, 
+author of "Modern C++ Design" and "C++ Coding Standards".
+
+
+So how is this used to transfer ownership of objects? We use them in a special kind of constructor and assignment operator 
+known as the "move constructor" and "move assignment operator" respectively.
+
+Let's look at an example:
+```cpp
+class A {
+public:
+    A() = default;
+
+    // Accepts a temporary "A" value
+    A(A&&) { std::cout << "A(A&&) moved constructor called"; }
+};
+
+// Calls A(A&&) (only when you specify -fno-elide-constructors otherwise C++ will elide the temporary)
+A a{A()}; // prints: "A(A&&) move constructor called" but only with that compiler flag
+```
+So this will only call the move ctor on the temporary if we explicitly tell the compiler to not elide the temporary with an 
+in-place construction. C++ gives us a nice utility to convert any reference into an rvalue reference using ``std::move``. Except
+that's wrong, it doesn't convert any reference into an rvalue reference, it converts it into an ``xvalue``. 
+
+An ``xvalue`` is a value that is identifiable and movable. Let's look at what our code would look like with ``std::move``:
+```cpp
+class A {
+public:
+    A() = default;
+    A(A&&) { std::cout << "A(A&&) moved constructor called"; }
+};
+
+A a = A();
+A b = std::move(b); // std::move(A()) also works 
+```
+So the code now calls ``std::move(b)`` and converts ``b`` into a ``A&&``. ``std::move`` is essentially sugar syntax for a 
+``static_cast``.
+
+Another place we use the ``&&`` is for move assignments to reassign already existing objects without creating temporaries.
+An example with our previous class would be:
+```cpp
+class A {
+public:
+    A() = default;
+    A& operator=(A&&) { std::cout << "operator=(A&&) called"; return *this; }
+};
+
+A a = A();
+A b = A();
+
+a = std::move(b); // prints: "operator=(A&&) called"
+```
+
+# Practical Example
+Let's write a very small ``std::vector`` that implements move semantics. I'll also introduce you to using ``std::exchange``,
+a very important function for writing clean move constructors.
+
+```cpp
+template<typename T>
+class MyVector {
+public:
+    using ValuePtr = T*;
+
+
+    /* === Basic ctors === */
+    MyVector() = default;
+    explicit MyVector(const std::size_t size) :
+        m_cap(size),
+        m_size(size),
+        m_storage(new T[size])
+    {
+        std::fill(begin(), end(), T())
+    }
+
+    /* === Insertion function === */
+    void push(T value) {
+        if(m_size <= m_cap) {
+            // call resize function, omitted for simplicity
+        }
+
+        data[m_size++] = value;
+    }
+
+
+    /* === Move semantics === */
+    
+    // Move constructor
+    MyVector(MyVector&& other)
+    noexcept(std::is_nothrow_move_constructible_v<decltype(m_storage)>) : // Just in case we change the storage type
+        m_cap(std::exchange(other.m_cap, 0)),
+        m_len(std::exchange(other.m_len, 0)),
+        m_storage(std::exchange(other.m_storage, nullptr))
+    {}
+
+    // Move assigmment
+    MyVector& operator=(MyVector&& other)
+    noexcept(std::is_nothrow_move_constructible_v<decltype(m_storage)>) {
+        if(this == other) {
+            return *this; // Self-assignment
+        }
+
+        delete[] data;
+
+        // Take ownership of "other"'s resources
+        m_cap     = std::exchange(other.m_cap, 0);
+        m_size    = std::exchange(other.m_size, 0);
+        m_storage = std::exchange(other.m_storage, nullptr);
+    }
+ 
+    // Not really important, just useful
+    ValuePtr begin() const { return m_storage; }
+    ValuePtr end()   const { return m_storage + m_size; }
+    
+private:
+    T *m_storage;
+    std::size_t m_size, m_cap;
+};
+
+MyVector expensive_task(const std::size_t N) {
+    MyVector vec(N);
+
+    for(std::size_t i = 0; i < N; ++i) {
+        vec.push(n);
+    }
+
+    return vec; // move constructor called, will be cheap whenever N is large
+}
+```
+As you can see from our custom vector implementation, whenever we return ``vec`` there's no need to
+create a copy of the return that you'd have if you didn't have a move constructor.
 
