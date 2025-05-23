@@ -139,7 +139,7 @@ construction.
 
 # std::move
 C++ gives us a nice utility to convert any reference into what seems like an rvalue reference using 
-[std::move](https://en.cppreference.com/w/cpp/utility/move).Except that's **wrong** :), 
+[std::move](https://en.cppreference.com/w/cpp/utility/move). Except that's **wrong** :), 
 it doesn't convert into an rvalue reference, but rather an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue).
 
 
