@@ -120,7 +120,7 @@ Andrei Alexandrescu, author of "Modern C++ Design" and "C++ Coding Standards".
 So, how is this used to transfer ownership of objects? We use them in a special kind of constructor 
 and assignment operator known as the "move constructor" and "move assignment operator", respectively.
 
-Let's look at an example:
+Let's look at an example of a move constructor:
 ```cpp
 class A {
 public:
@@ -137,10 +137,26 @@ So this will only call the move ctor on the temporary if we explicitly tell the 
 [elide](https://en.cppreference.com/w/cpp/language/copy_elision) the temporary with an in-place 
 construction. 
 
+Another place we use the ``&&`` is for move assignments to reassign already existing objects without creating
+temporaries. An example of a move assignment operator:
+```cpp
+class A {
+public:
+    A() = default;
+    A& operator=(A&&) { std::cout << "operator=(A&&) called"; return *this; }
+};
+
+A a = A();
+A b = A();
+
+a = std::move(b); // prints: "operator=(A&&) called"
+```
+
+
 # std::move
-C++ gives us a nice utility to convert any reference into what seems like an rvalue reference using 
-[std::move](https://en.cppreference.com/w/cpp/utility/move). Except that's **wrong** :), 
-it doesn't convert into an rvalue reference, but rather an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue).
+C++ gives us a nice utility function to convert any reference into what seems like an rvalue reference using 
+[std::move](https://en.cppreference.com/w/cpp/utility/move). Except that's **wrong** :), it doesn't convert into an 
+rvalue reference, but rather an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue).
 
 
 An ``xvalue`` is a expression that is identifiable and movable. Let's look at what our code would look like 
@@ -157,21 +173,6 @@ A b = std::move(b); // std::move(A()) also works
 ```
 So the code now calls ``std::move(b)`` and converts ``b`` into a ``A&&``. 
 (NOTE: ``std::move`` is essentially sugar syntax for a ``static_cast``)
-
-Another place we use the ``&&`` is for move assignments to reassign already existing objects without creating
-temporaries. An example with our previous class would be:
-```cpp
-class A {
-public:
-    A() = default;
-    A& operator=(A&&) { std::cout << "operator=(A&&) called"; return *this; }
-};
-
-A a = A();
-A b = A();
-
-a = std::move(b); // prints: "operator=(A&&) called"
-```
 
 ## Practical Example
 Let's write a very small ``std::vector`` that implements move semantics. I'll also introduce you to using
