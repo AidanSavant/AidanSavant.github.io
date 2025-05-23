@@ -109,7 +109,7 @@ of the temporary to last for the duration of the function. It's considered "the 
 author of "Modern C++ Design" and "C++ Coding Standards".
 
 
-So how is this used to transfer ownership of objects? We use them in a special kind of constructor and assignment operator 
+So, how is this used to transfer ownership of objects? We use them in a special kind of constructor and assignment operator 
 known as the "move constructor" and "move assignment operator" respectively.
 
 Let's look at an example:
@@ -126,8 +126,12 @@ public:
 A a{A()}; // prints: "A(A&&) move constructor called" but only with that compiler flag
 ```
 So this will only call the move ctor on the temporary if we explicitly tell the compiler to not elide the temporary with an 
-in-place construction. C++ gives us a nice utility to convert any reference into an rvalue reference using ``std::move``. Except
+in-place construction. 
+
+# std::move
+C++ gives us a nice utility to convert any reference into an rvalue reference using ``std::move``. Except
 that's wrong, it doesn't convert any reference into an rvalue reference, it converts it into an ``xvalue``. 
+
 
 An ``xvalue`` is a value that is identifiable and movable. Let's look at what our code would look like with ``std::move``:
 ```cpp
@@ -158,7 +162,7 @@ A b = A();
 a = std::move(b); // prints: "operator=(A&&) called"
 ```
 
-# Practical Example
+## Practical Example
 Let's write a very small ``std::vector`` that implements move semantics. I'll also introduce you to using ``std::exchange``,
 a very important function for writing clean move constructors.
 
@@ -235,4 +239,66 @@ MyVector expensive_task(const std::size_t N) {
 ```
 As you can see from our custom vector implementation, whenever we return ``vec`` there's no need to
 create a copy of the return that you'd have if you didn't have a move constructor.
+
+
+
+## Forwarding references
+In the previous section we learned we use the ``&&`` to notate that we want to do a "move" operation. Could we then write generic functions that can accept any rvalue reference?
+
+Something like this?
+```cpp
+template<typename T>
+void f(T&&) {}
+
+f(std::move(some_object)); // OK
+
+int a = 15;
+f(a); // NOT OK? MAYBE?
+```
+Not exactly... that ``f(a)`` is actually valid. ``T`` is what's known as a "forwarding reference" / "universal reference" (love you scott meyers). 
+It's a reference that can either bind to an lvalue or rvalue depending on the arguments we give it. However, it has this one cavet due to "reference collapsing".
+
+Imagine we take the same function but instead we call another function that has two overloads: an lvalue
+reference overload and an rvalue (const T&) overload:
+```cpp
+template<typename T>
+void g(T& x) {}
+
+template<typename T>
+void g(const T& x) {}
+
+template<typename T>
+void f(T&& x) { g(x); }
+
+f(15);
+```
+This code doesn't do what you expect it to. You expect ``f`` to call ``g(const T&)``, but it actually
+calls ``g(T&)``. This is due to something called "reference collapsing".
+
+## Reference collapsing
+Reference collapsing is a set of rules that sets when we combine reference types it'll follow these forms:
+```
+T&& + T&  => T&
+T&  + T&& => T&
+T&& + T&  => T&
+T&& + T&& => T&&
+```
+The purpose of these rules is to implement "perfect forwarding".
+
+## Perfect forwarding
+Perfect forwarding is the process of maintaining an expressions value category between function calls.
+
+This is done through another utility function called ``std::forward``. To properly maintain the value
+category between function calls to resolve the correct overloads, we have to change the body of ``f`` to:
+```cpp
+template<typename T>
+void f(T&& x) { g(std::forward<T>(x)); }
+```
+(NOTE: ``std::forward`` is also some syntactical sugar for a ``static_cast``, much like ``std::move`` is)
+
+This updated ``f`` function now properly calls the correct overloads.
+
+# Revisions
+Somewhat still a WIP, some stuff is probably incorrect or spelled incorrectly. Please email me if you find anything / think
+I should add stuff.
 
