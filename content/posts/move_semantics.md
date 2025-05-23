@@ -11,7 +11,7 @@ Small introduction to move semantics in C++. WIP.
 C++ is a systems language designed for performance, and it does a pretty damn good 
 job of achieving this. However, there was a grey area before C++11 that was hard for 
 compiler developers to address **efficiently**. I'm referring to the construction of 
-temporary objects causing ``unnecessary`` copying of, possibly, ``large`` [objects](https://eel.is/c++draft/intro.object).
+temporary objects causing unnecessary copying of, possibly, large [objects](https://eel.is/c++draft/intro.object).
 (NOTE: C++ objects, not OO objects. Completely different things) 
 
 C++ compilers later implemented a few ways to address this problem, namely through
@@ -22,10 +22,10 @@ However, this only addressed a subset of scenarios where a copy could be avoided
 Move semantics was the solution implemented that addressed these set of scenarios.
 
 So... what exactly are [move semantics](https://www.cprogramming.com/c++11/rvalue-references-and-move-semantics-in-c++11.html)?
-Move semantics are a set of optimization techniques implemented in C++11 to ``efficiently`` *move* around objects 
-without the ``unnecessary`` need of copying them. This is done through transferring **ownership** of an object.
+Move semantics are a set of optimization techniques implemented in C++11 to efficiently *move* around objects 
+without the unnecessary need of copying them. This is done through transferring **ownership** of an object.
 Furthermore, if something takes ownership of an object, then the state of that object outside of what owns it, 
-is ``invalid``.
+is **invalid**.
 
 # How?
 C++ implemented the notion of moving objects through adapting what's known as [value categories](https://en.cppreference.com/w/cpp/language/value_category).
@@ -34,11 +34,11 @@ about said expression. In their simplest form, there are 2 **main** categories: 
 (and subsequent reference forms of such categories). -- Technically, there are more categories that
 are more or less broad such as: glvalues, prvalues, and xvalues.
 
-C++14 introduced the ``rvalue reference`` (and [xvalues](https://en.cppreference.com/w/cpp/language/value_category#xvalue), but we'll go over that later) value category as a way to implement 
-move semantics. Let's define what ``lvalues`` and ``rvalues`` are.
+C++14 introduced **rvalue references** (and [xvalues](https://en.cppreference.com/w/cpp/language/value_category#xvalue),
+but we'll go over that later) value category as a way to implement move semantics. Let's define what ``lvalues`` and ``rvalues`` are.
 
 ## Lvalues
-Generally, ``lvalues`` are ``identifiable`` (can be addressed in memory and non-temporary) expressions. Archaically,
+Generally, **lvalues** are **identifiable** (can be addressed in memory and non-temporary) expressions. Archaically,
 they're typically referred to as what you find on the "left-hand side" of an assignment.
 
 Let's look at some examples:
@@ -63,9 +63,9 @@ f() = 15;
 ```
 
 ## Rvalues
-Generally, ``rvalues`` are expressions that aren't lvalues. Therefore, ``rvalues`` are simply value that have no ``identity`` 
-(``not addressible`` in memory and are temporary`` relative to the evaluation context). Subsequently, they are also
-archaically referred to as what's found on the "right-hand side" of an assignment.
+Generally, **rvalues** are expressions that **aren't lvalues**. Therefore, ``rvalues`` are simply value that have no 
+``identity`` (``not addressible`` in memory and are temporary`` relative to the evaluation context). Subsequently, 
+they are also archaically referred to as what's found on the "right-hand side" of an assignment.
 
 Let's look at some examples:
 ```cpp
@@ -112,8 +112,9 @@ void f(const int& x) {}
 ```
 
 this will also accept temporaries AND non-temporary values. The reason why this is okay is because C++ will extend the
-lifetime of the temporary to last for the duration of the function. It's considered [the most important const](https://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/) 
-by Andrei Alexandrescu, author of "Modern C++ Design" and "C++ Coding Standards".
+lifetime of the temporary to last for the duration of the function. It's considered 
+[the most important const](https://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/) by 
+Andrei Alexandrescu, author of "Modern C++ Design" and "C++ Coding Standards".
 
 
 So, how is this used to transfer ownership of objects? We use them in a special kind of constructor 
@@ -137,11 +138,13 @@ So this will only call the move ctor on the temporary if we explicitly tell the 
 construction. 
 
 # std::move
-C++ gives us a nice utility to convert any reference into an rvalue reference using [std::move](https://en.cppreference.com/w/cpp/utility/move).
-Except that's wrong :), it doesn't convert into an rvalue reference, but rather an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue). 
+C++ gives us a nice utility to convert any reference into what seems like an rvalue reference using 
+[std::move](https://en.cppreference.com/w/cpp/utility/move).Except that's **wrong** :), 
+it doesn't convert into an rvalue reference, but rather an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue).
 
 
-An ``xvalue`` is a value that is identifiable and movable. Let's look at what our code would look like with ``std::move``:
+An ``xvalue`` is a value that is identifiable and movable. Let's look at what our code would look like 
+with ``std::move``:
 ```cpp
 class A {
 public:
@@ -155,8 +158,8 @@ A b = std::move(b); // std::move(A()) also works
 So the code now calls ``std::move(b)`` and converts ``b`` into a ``A&&``. ``std::move`` is essentially sugar syntax for a 
 ``static_cast``.
 
-Another place we use the ``&&`` is for move assignments to reassign already existing objects without creating temporaries.
-An example with our previous class would be:
+Another place we use the ``&&`` is for move assignments to reassign already existing objects without creating
+temporaries. An example with our previous class would be:
 ```cpp
 class A {
 public:
@@ -309,6 +312,6 @@ void f(T&& x) { g(std::forward<T>(x)); }
 This updated ``f`` function now properly calls the correct overloads.
 
 # Revisions
-Somewhat still a WIP, some stuff is probably incorrect or spelled incorrectly. Please email me if you find anything / think
-I should add stuff.
+Somewhat still a WIP, some stuff is probably incorrect or spelled incorrectly. Please email me if you find anything 
+/ think I should add stuff.
 
