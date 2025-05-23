@@ -143,7 +143,7 @@ C++ gives us a nice utility to convert any reference into what seems like an rva
 it doesn't convert into an rvalue reference, but rather an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue).
 
 
-An ``xvalue`` is a value that is identifiable and movable. Let's look at what our code would look like 
+An ``xvalue`` is a expression that is identifiable and movable. Let's look at what our code would look like 
 with ``std::move``:
 ```cpp
 class A {
