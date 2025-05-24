@@ -71,14 +71,14 @@ they are also archaically referred to as what's found on the "right-hand side" o
 
 Let's look at some examples:
 ```cpp
-// 15 is an rvalue, it's temporary and aren't identifiable
+// 15 is an rvalue, it's temporary and isn't identifiable
 int x = 15;
 
 // This further proves that "15" is a temporary, because we cannot assign it as if it had an identity.
 15 = x; // ERROR
 ```
 
-Let's look at a little tricky example:
+Let's look at a little trickier example:
 ```cpp
 int x = 15;
 int y = x; // what is the value category of 'x'?
