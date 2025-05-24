@@ -61,6 +61,8 @@ f() = 15;
 
 // "x" is now 15
 ```
+In accordance to the formal definition, an lvalue designates a **function** or some **object**. Therefore, we can see
+that ``f()`` is an lvalue here and is assignable.
 
 ## Rvalues
 Generally, **rvalues** are expressions that **aren't lvalues**. Therefore, ``rvalues`` are simply value that have no 
