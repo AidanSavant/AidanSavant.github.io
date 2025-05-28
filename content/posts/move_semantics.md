@@ -189,22 +189,26 @@ public:
 
 
     /* === Basic ctors === */
-    MyVector() = default;
+    MyVector() = default;    
     explicit MyVector(const std::size_t size) :
         m_cap(size),
         m_size(size),
         m_storage(new T[size])
     {
-        std::fill(begin(), end(), T())
+        std::fill(begin(), end(), T());
     }
 
-    /* === Insertion function === */
+    
+    // Basic dtor
+    ~MyVector() { delete[] m_storage; }
+
+    // Basic insertion function
     void push(T value) {
-        if(m_size <= m_cap) {
+        if(m_size >= m_cap) {
             // call resize function, omitted for simplicity
         }
 
-        data[m_size++] = value;
+        m_storage[m_size++] = value;
     }
 
 
@@ -214,14 +218,14 @@ public:
     MyVector(MyVector&& other)
     noexcept(std::is_nothrow_move_constructible_v<decltype(m_storage)>) : // Just in case we change the storage type
         m_cap(std::exchange(other.m_cap, 0)),
-        m_len(std::exchange(other.m_len, 0)),
+        m_size(std::exchange(other.m_size, 0)),
         m_storage(std::exchange(other.m_storage, nullptr))
     {}
 
     // Move assigmment
     MyVector& operator=(MyVector&& other)
     noexcept(std::is_nothrow_move_constructible_v<decltype(m_storage)>) {
-        if(this == other) {
+        if(*this == other) {
             return *this; // Self-assignment
         }
 
@@ -231,9 +235,11 @@ public:
         m_cap     = std::exchange(other.m_cap, 0);
         m_size    = std::exchange(other.m_size, 0);
         m_storage = std::exchange(other.m_storage, nullptr);
+
+        return this;
     }
  
-    // Not really important, just useful
+    // Not really important, just useful for ctor
     ValuePtr begin() const { return m_storage; }
     ValuePtr end()   const { return m_storage + m_size; }
     
@@ -246,7 +252,7 @@ MyVector expensive_task(const std::size_t N) {
     MyVector vec(N);
 
     for(std::size_t i = 0; i < N; ++i) {
-        vec.push(n);
+        vec.push(i);
     }
 
     return vec; // move constructor called, will be cheap whenever N is large
@@ -298,7 +304,7 @@ T&  + T&& => T&
 T&& + T&  => T&
 T&& + T&& => T&&
 ```
-The purpose of these rules is to implement [perfect forwarding](https://www.justsoftwaresolutions.co.uk/cplusplus/rvalue_references_and_perfect_forwarding.html).
+The purpose of these rules are to implement [perfect forwarding](https://www.justsoftwaresolutions.co.uk/cplusplus/rvalue_references_and_perfect_forwarding.html).
 
 ## Perfect forwarding
 Perfect forwarding is the process of maintaining an expressions value category between function calls.
