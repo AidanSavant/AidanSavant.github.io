@@ -29,9 +29,9 @@ is **invalid**.
 
 # How?
 C++ implemented the notion of moving objects through adapting what's known as [value categories](https://en.cppreference.com/w/cpp/language/value_category).
-Value categories are a property of expressions that are notate notation some information. 
-about said expression. In their simplest form, there are 2 **main** categories: [lvalues](https://en.cppreference.com/w/cpp/language/value_category#lvalue) and [rvalues](https://en.cppreference.com/w/cpp/language/value_category#rvalue) 
-(and subsequent reference forms of such categories). -- Technically, there are more categories that
+Value categories are a property of expressions that notate some information about said expression.
+In their simplest form, there are 2 **main** categories: [lvalues](https://en.cppreference.com/w/cpp/language/value_category#lvalue)
+and [rvalues](https://en.cppreference.com/w/cpp/language/value_category#rvalue) (and subsequent reference forms of such categories). -- Technically, there are more categories that
 are more or less broad such as: glvalues, prvalues, and xvalues.
 
 C++14 introduced **rvalue references** (and [xvalues](https://en.cppreference.com/w/cpp/language/value_category#xvalue),
