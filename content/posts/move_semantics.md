@@ -66,7 +66,7 @@ that ``f()`` is an lvalue here and is assignable.
 
 ## Rvalues
 Generally, **rvalues** are expressions that **aren't lvalues**. Therefore, ``rvalues`` are simply value that have no 
-``identity`` (``not addressible`` in memory and are temporary`` relative to the evaluation context). Subsequently, 
+``identity`` (``not addressable`` in memory and are temporary`` relative to the evaluation context). Subsequently, 
 they are also archaically referred to as what's found on the "right-hand side" of an assignment.
 
 Let's look at some examples:
