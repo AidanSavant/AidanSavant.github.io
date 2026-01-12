@@ -4,7 +4,7 @@ date  = "2025-03-05"
 tags  = ["C", "Headache"]
 +++
 
-Generics functions and generic containers in C.
+Generics functions and generic containers in C
 <!--more-->
 
 # Introduction
