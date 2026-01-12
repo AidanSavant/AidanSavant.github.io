@@ -17,28 +17,26 @@ large [objects](https://eel.is/c++draft/intro.object).
 C++ compilers later implemented a few ways to address this problem, namely through
 compiler optimizations such as [RVO](https://sigcpp.github.io/2020/06/08/return-value-optimization) 
 and [copy elision](https://en.cppreference.com/w/cpp/language/copy_elision).
-
 However, this only addressed a subset of scenarios where a copy could be avoided. 
 Move semantics was the solution implemented that addressed these set of scenarios.
 
 So... what exactly are [move semantics](https://www.cprogramming.com/c++11/rvalue-references-and-move-semantics-in-c++11.html)?
 Move semantics are a set of optimization techniques implemented in C++11 to efficiently *move* around objects 
 without the unnecessary need of copying them. This is done through transferring **ownership** of an object.
-Furthermore, if something takes ownership of an object, then the state of that object outside of what owns it, 
-is **invalid**.
+Furthermore, if something takes ownership of an object, the state of the object is left in an **invalid** state.
 
 # How?
-C++ implemented the notion of moving objects through adapting what's known as [value categories](https://en.cppreference.com/w/cpp/language/value_category).
-Value categories are a property of expressions that notate some information about said expression.
+C++ implemented the notion of moving objects through exposing a special kind of type that represents a [value category](https://en.cppreference.com/w/cpp/language/value_category).
+Value categories are a property of expressions' that notate some information about said expression.
 In their simplest form, there are 2 **main** categories: [lvalues](https://en.cppreference.com/w/cpp/language/value_category#lvalue)
 and [rvalues](https://en.cppreference.com/w/cpp/language/value_category#rvalue) (and subsequent reference forms of such categories). -- Technically, there are more categories that
 are more or less broad such as: glvalues, prvalues, and xvalues.
 
-C++14 introduced **rvalue references** (and [xvalues](https://en.cppreference.com/w/cpp/language/value_category#xvalue),
-but we'll go over that later) value category as a way to implement move semantics. Let's define what ``lvalues`` and ``rvalues`` are.
+C++14 introduced **rvalue references** (and [xvalues](https://en.cppreference.com/w/cpp/language/value_category#xvalue), which is a type that signifies an rvalue. 
+Let's define what ``lvalues`` and ``rvalues`` are.
 
 ## Lvalues
-Generally, **lvalues** are **identifiable** (can be addressed in memory and non-temporary) expressions. Archaically,
+Generally, **lvalues** are **identifiable** (can be addressed in memory and non-temporary) expressions. Colloquially,
 they're typically referred to as what you find on the "left-hand side" of an assignment.
 
 Let's look at some examples:
@@ -61,13 +59,13 @@ f() = 15;
 
 // "x" is now 15
 ```
-In accordance to the formal definition, an lvalue designates a **function** or some **object**. Therefore, we can see
+In accordance to the formal definition, lvalues designate a **function** or some **object**. Therefore, we can see
 that ``f()`` is an lvalue here and is assignable.
 
 ## Rvalues
-Generally, **rvalues** are expressions that **aren't lvalues**. Therefore, ``rvalues`` are simply value that have no 
-``identity`` (``not addressable`` in memory and are temporary`` relative to the evaluation context). Subsequently, 
-they are also archaically referred to as what's found on the "right-hand side" of an assignment.
+Generally, **rvalues** are expressions that **aren NOT lvalues**. Therefore, ``rvalues`` are simply value that have no 
+``identity`` (``not addressable`` in memory and are ``temporary`` relative to the evaluation context). Subsequently, 
+they are also colloquially referred to as what's found on the "right-hand side" of an assignment.
 
 Let's look at some examples:
 ```cpp
@@ -78,7 +76,7 @@ int x = 15;
 15 = x; // ERROR
 ```
 
-Let's look at a little trickier example:
+Let's look at a trickier example:
 ```cpp
 int x = 15;
 int y = x; // what is the value category of 'x'?
@@ -95,7 +93,8 @@ int x = f(); // implicitly convert lvalue "f()" to it's rvalue return value
 ## Rvalue references
 With that out of the way, let's talk about 
 [rvalue references](https://learn.microsoft.com/en-us/cpp/cpp/rvalue-reference-declarator-amp-amp?view=msvc-170). 
-Just like lvalue references, rvalue reference some rvalue. Rvalue references are denoted with a double ``&&``.
+Just like lvalue references, rvalue references are a type that represent some rvalue.
+Rvalue references are denoted with a double ``&&``.
 
 Let's look at an example:
 ```cpp
@@ -113,11 +112,10 @@ temporary value e.g:
 void f(const int& x) {}
 ```
 
-this will also accept temporaries AND non-temporary values. The reason why this is okay is because C++ will extend the
+this will also both accept temporaries AND non-temporary values. The reason why this is okay is because C++ will extend the
 lifetime of the temporary to last for the duration of the function. It's considered 
 [the most important const](https://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/) by 
 Andrei Alexandrescu, author of "Modern C++ Design" and "C++ Coding Standards".
-
 
 So, how is this used to transfer ownership of objects? We use them in a special kind of constructor 
 and assignment operator known as the "move constructor" and "move assignment operator", respectively.
@@ -157,12 +155,12 @@ a = std::move(b); // prints: "operator=(A&&) called"
 
 # std::move
 C++ gives us a nice utility function to convert any reference into what seems like an rvalue reference using 
-[std::move](https://en.cppreference.com/w/cpp/utility/move). Except that's **wrong** :), it doesn't convert into an 
-rvalue reference, but rather an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue).
+[std::move](https://en.cppreference.com/w/cpp/utility/move). Except that's **not entirely correct** :), 
+it doesn't convert into an rvalue reference, but rather it produces an [xvalue](https://en.cppreference.com/w/cpp/language/value_category#xvalue).
 
 
-An ``xvalue`` is a expression that is identifiable and movable. Let's look at what our code would look like 
-with ``std::move``:
+An ``xvalue`` is a type of rvalue where the expression is denoted as "moveable".``x`` in ``std::move(x)`` denotes that we can move
+from `x` into some specified object. Let's look at what our code would look like with ``std::move``:
 ```cpp
 class A {
 public:
@@ -321,6 +319,5 @@ void f(T&& x) { g(std::forward<T>(x)); }
 This updated ``f`` function now properly calls the correct overloads.
 
 # Revisions
-Somewhat still a WIP, some stuff is probably incorrect or spelled incorrectly. Please email me if you find anything 
-/ think I should add stuff.
+Still somewhat of a WIP, some stuff is probably incorrect or grammatical issues. Please email me if you find anything / think I should add stuff.
 
