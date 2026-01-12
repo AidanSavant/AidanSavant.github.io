@@ -12,12 +12,12 @@ Generics functions and generic containers in C
 There will be a point in your software development career where you'll 
 need to write code that can be applied to a set of types rather than a singular type.
 
-This is called "generic programming", more rigorously known as "parametric polymorphism",
-and it's a common feature of most programming languages.
+This is called "generic programming", more rigorously known as "parametric polymorphism".
 
 Typically, writing generics in those other programming languages looks something like this:
 ```rust
-fn swap<T>(T x, T y) {
+// Assume "T" references existing objects
+fn swap<T>(T& x, T& y) {
     T tmp = x;
     x = y;
     y = tmp;
@@ -25,8 +25,7 @@ fn swap<T>(T x, T y) {
 ```
 
 Basically, we're describing some "abstract" type that will be replaced with some "concrete"
-type upon calling ``swap``. You can think of this as "type substitution" or "type rewriting"
-because that is commonly how it's implemented. 
+type upon calling ``swap``. You can think of this as "type substitution"/"type rewriting". 
 
 This notion of "type substitution" is typically implemented as the 
 compiler stamping out different versions of `swap` with the given "concrete" type. 
@@ -36,11 +35,11 @@ Let's look at monomorphization in action with our ``swap`` example:
 ```rust
 int a = 5;
 int b = 10;
-swap(a, b)
+swap(a, b);
 
-string c = "foo"
-string d = "bar"
-swap(c, d)
+string c = "foo";
+string d = "bar";
+swap(c, d);
 ```
 
 so with our integer variables the compiler is actually calling an underlying 
@@ -55,31 +54,30 @@ fn swap_int(int x, int y) {
 
 and likewise for our string variables. 
 
-But how does the compiler know which underlying function to call?
-Well, the compiler is smart and can usually *infer* the concrete type, 
-otherwise we have to explicitly annotate it which typically looks like:
+But, how does the compiler know which underlying function to call?
+The compiler is smart and can typically *infer* the concrete type, 
+otherwise we have to explicitly annotate it which typically follows this syntax:
 ```rust
 swap<int>(a, b)
 swap<string>(c, d)
 ```
 
 # Rewrite that in C for me...
-That's cool and all but... what is the syntax for that in C? 
+That's cool and all but... where's that syntax for that in C? 
 
 It doesn't exist 😃!!!
 
 # Types of approaches
 Anyways... C offers two (technically three) mechanisms for us to indirectly implement generics.
 
-1.) Type erasure (``void pointers`` & ``enum`` tags)
+1.) Type erasure (``void pointers`` + ``enum`` tags)
 
 2.) Monomorphization (macros)
 
-(You can also use unions & enum tags 
+(You can also use unions + enum tags 
 but I'm just going to talk about first two)
 
-both of which have their own pros and cons, to keep it simple and align with the introduction
-we'll stick to monomorphization.
+both of which have their own pros and cons, to keep it simple and align with the introduction we'll stick to monomorphization.
 
 # Generic functions
 Let's rewrite our little pseudo-code example in C with macros:
@@ -102,10 +100,10 @@ int main(void) {
 You can test the code out and print each variable to ensure it properly swapped.
 
 C allows us to use macros to directly swap our code at compile-time with the given
-concrete type that is returned to us via ``typeof`` (which was standardized for C2x in 2023)
+concrete type that is returned to us via ``typeof`` (which was standardized for C2X in 2024)
 
 # Generic containers
-So now we know how to create generic functions, but what about generic data structures?
+Now we know how to create generic functions, but what about generic data structures?
 It's not too much different, but it requires a little bit more care and thought due to
 some subtle issues that we'll cover.
 
@@ -121,15 +119,12 @@ struct List<T> {
 }
 ```
 
-We'll need to create some sort of macro system for our ``ListNode`` and ``List`` type,
-we can do it like we did our original example, but this is a little different since
-we need to name these types.
+We'll need to create some sort of macro system for our ``ListNode`` and ``List`` types,
+we can do it like we did in our original example, but this is a little different since we need to name these types.
 
-Alas the question arises, how do we name theses types? How should we
- differentiate between the multiple concrete types?
+Alas the question arises, how do we name theses types? How should we differentiate between the multiple concrete types?
 
-Let's think about it, what is a unique way we can associate the concrete type 
-to our type name? The type name!
+Let's think about is. What is a unique way we can associate the concrete type to our type name? The type name!
 
 Let's look at an example:
 ```c
@@ -150,18 +145,16 @@ Let's look at an example:
 Looks good... right?
 
 # Subtle issue #1
-The 1st issue is how constricting our type declaration is, 
-ergo we have no flexibility in what the name of the type is. 
-
-Okay so how do we fix this?
-Interestingly enough, the solution to this issue is also the solution to the 2nd issue!
+The 1st issue is how constricting our type declaration is, ergo we have no flexibility in what the name of the type is. 
 
 # Subtle issue #2
 The 2nd issue is in how macros actually work. Macros preform lexical token substutition,
-so what happens if we want our ``data`` to be ``volatile`` or ``unsigned``? How will the 
-macro substitute our type then?
+so what happens if we want our ``data`` to be ``volatile``, ``unsigned``, or some pointer type? 
+How will the macro substitute our type then?
 
-Well, let's try it and see what happens when we do ``DECL_LIST(const int)``:
+Okay so how do we fix this? Interestingly enough, they have the same solution!
+
+Let's try it and see what happens when we do ``DECL_LIST(const int)``:
 
 ```c
 typedef struct ListNode_const int { 
@@ -174,10 +167,10 @@ typedef struct List_const int {
 } List_const int;
 ```
 
-Well... that doesn't look right... (this code also breaks with `T*` types)
+Well... that doesn't look right... 
 
 
-To fix this, we'll use indirection and have another parameter to label the type:
+To fix this, we'll add a layer of indirection and introduce a parameter to label the type:
 ```c
 #include <stdio.h>
 #include <stdlib.h>
@@ -210,7 +203,7 @@ typedef struct List {
 } List;
 ```
 
-looks correct to me! Now let's move onto implementing some functions for the generic type.
+Let's move onto implementing some functions for the generic type.
 
 # Generic container functions
 Here's a list of generic container functions we'll implement for our list:
@@ -281,8 +274,9 @@ however for the 2nd function we're going to have to
 take some careful consideration for how we approach it.
 
 ## Generic tail deletion
-So what do we do when we delete a node? Well, we set the pointers accordingly and
-free the dataaa.... oh wait... what do we free if the concrete type is a complex type?
+So what do we do when we delete a node? We set the pointers accordingly and
+free the dataaa.... oh wait... how do we free our data if the concrete type is a 
+complex type?
 
 Let's say we have a structure:
 ```c
